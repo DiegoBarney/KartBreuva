@@ -26,14 +26,18 @@
 
 #define TECLA_INVALIDA 999
 
+#define GAME_AVISO_COLISAO "VOCE PERDEU, SEU CARRO COLIDIU COM O CARRO INIMIGO!!!, APERTE F3"
+#define GAME_CARRO_PLAYER '#'
+#define GAME_CARRO_INIMIGO '$'
+#define GAME_CARRO_COLISAO '@'
+#define VAZIO ' '
 
 int globalColunaCarro, 
 	globalLinhaCarro;
 
-char globalCarroPlayer = '#',
-	 globalCarroInimigo = '$';
-
 HANDLE gInterfaceEvent;
+bool gCarroColidiu = false;
+char gAvisosJogo[100] = {' '};
 
 void pistaUserIterface(char** pistaBackEnd) {
 
@@ -57,12 +61,15 @@ void pistaUserIterface(char** pistaBackEnd) {
 
 			for (int colunasInterface = 0; colunasInterface < TAM_COLUNAS_INTERFACE; colunasInterface++)
 			{
-				if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroPlayer) {
+				if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == GAME_CARRO_PLAYER) {
 					printf("\x1b[37m|==|-");
 				}
-				else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroInimigo)
+				else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == GAME_CARRO_INIMIGO)
 				{
 					printf("\x1b[32m-|==|");
+				}
+				else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == GAME_CARRO_COLISAO) {
+					printf("\x1b[32m|==||==|");
 				}
 				else {
 					printf("\x1b[37m  %c  ", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
@@ -70,7 +77,8 @@ void pistaUserIterface(char** pistaBackEnd) {
 			}
 		}
 	}
-	printf("\n\x1b[31m_____________________________________________________________________________________________________________\n\n\n\n");
+	printf("\n\x1b[31m_____________________________________________________________________________________________________________\n");
+	printf("\n\x1b[31mAVISOS: %s \n", gAvisosJogo);
 }
 
 void registraTeclasDoJogo()
@@ -97,7 +105,7 @@ void registraTeclasDoJogo()
 int capturaTeclado() {
 	MSG msg = { 0 };
 
-	while (GetMessage(&msg, NULL, 0, 0) != 0)
+	while (GetMessage(&msg, NULL, 0, 0) != false)
 	{
 		if (msg.message == WM_HOTKEY)
 		{
@@ -140,7 +148,7 @@ void moveParaDireita(char** pistaBackEnd) {
 	{
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = ' ';
 		globalColunaCarro++;
-		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = globalCarroPlayer;
+		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_PLAYER;
 	}
 }
 
@@ -150,7 +158,7 @@ void moveParaEsquerda(char** pistaBackEnd) {
 	{
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = ' ';
 		globalColunaCarro--;
-		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = globalCarroPlayer;
+		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_PLAYER;
 	}
 }
 
@@ -160,7 +168,7 @@ void moveParaCima(char** pistaBackEnd) {
 	{
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = ' ';
 		globalLinhaCarro--;
-		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = globalCarroPlayer;
+		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_PLAYER;
 	}
 }
 
@@ -170,7 +178,7 @@ void moveParaBaixo(char** pistaBackEnd) {
 	{
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = ' ';
 		globalLinhaCarro++;
-		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = globalCarroPlayer;
+		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_PLAYER;
 	}
 }
 
@@ -190,7 +198,7 @@ char** organizaPistaBackEndIncial() {
 			if (l == 2 && c == 0) {
 				globalLinhaCarro = l;
 				globalColunaCarro = c;
-				matriz[l][c] = globalCarroPlayer;
+				matriz[l][c] = GAME_CARRO_PLAYER;
 			}
 			else {
 				matriz[l][c] = ' ';
@@ -216,18 +224,18 @@ void movimentacaoNaPistaBackEnd(char** pistaBackEnd, int movimento) {
 }
 
 void gerarCarrosAleatoriosNaPista(char** pistaBackEnd) {
-	while (true) {
+	while (gCarroColidiu == false) {
 
 		for (int linha = 0, coluna = (COLUNAS -1); linha <= 4; linha++) {
 			if (rand() % 2 == 0)
-				pistaBackEnd[linha][coluna] = globalCarroInimigo;
+				pistaBackEnd[linha][coluna] = GAME_CARRO_INIMIGO;
 			else
-				pistaBackEnd[linha][coluna] = ' ';
+				pistaBackEnd[linha][coluna] = VAZIO;
 		}
 
 		for (int linha = 0, coluna = (COLUNAS - 1); linha <= 4; linha++) {
 			if (rand() % 2 == 0)
-				pistaBackEnd[linha][coluna] = ' ';
+				pistaBackEnd[linha][coluna] = VAZIO;
 		}
 
 		Sleep(2000);
@@ -236,19 +244,30 @@ void gerarCarrosAleatoriosNaPista(char** pistaBackEnd) {
 }
 
 void moveCarrosGeradosAleatoriamente(char** pistaBackEnd) {
-	while (true) {
+
+	while (gCarroColidiu == false) {
 
 		Sleep(200);
 
 		for (int linha = 0; linha <= 4; linha++) {
 			for (int coluna = 0; coluna <= (COLUNAS - 1); coluna++) {
 
-				if (pistaBackEnd[linha][coluna] == globalCarroInimigo) {
-					pistaBackEnd[linha][coluna] = ' ';
-					pistaBackEnd[linha][coluna - 1] = globalCarroInimigo;
+				if (pistaBackEnd[linha][coluna] == GAME_CARRO_INIMIGO) {
+					pistaBackEnd[linha][coluna] = VAZIO;
+
+					if (pistaBackEnd[linha][coluna - 1] == GAME_CARRO_PLAYER)
+					{
+						pistaBackEnd[linha][coluna - 1] = GAME_CARRO_COLISAO;
+						gCarroColidiu = true;
+						memcpy(gAvisosJogo, GAME_AVISO_COLISAO, strlen(GAME_AVISO_COLISAO) + 1);
+					}
+					else {
+						pistaBackEnd[linha][coluna - 1] = GAME_CARRO_INIMIGO;
+					}
 				}
 			}
 		}
+
 		SetEvent(gInterfaceEvent);
 	}
 }
@@ -256,7 +275,7 @@ void moveCarrosGeradosAleatoriamente(char** pistaBackEnd) {
 int atualizacaoInterfaceGrafica(char** pistaBackEnd) {
 	DWORD dwWaitResult;
 	
-	while (true) {
+	while (gCarroColidiu == false) {
 
 		dwWaitResult = WaitForSingleObject(gInterfaceEvent, INFINITE);
 
@@ -298,11 +317,18 @@ int main()
 	std::thread gerarCarros(gerarCarrosAleatoriosNaPista, pistaBackEnd);
 	std::thread movimentaCarros(moveCarrosGeradosAleatoriamente, pistaBackEnd);
 
-	while (true) {
+	while (gCarroColidiu == false) {
 		teclaDirecional = capturaTeclado();
 		movimentacaoNaPistaBackEnd(pistaBackEnd, teclaDirecional);
 		SetEvent(gInterfaceEvent);
 	}
+
+	movimentaCarros.join();
+	gerarCarros.join();
+	interfaceGrafica.join();
+
+	system("pause");
+
 
 	return 0;
 }
