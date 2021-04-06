@@ -33,6 +33,8 @@ int globalColunaCarro,
 char globalCarroPlayer = '#',
 	 globalCarroInimigo = '$';
 
+HANDLE gInterfaceEvent;
+
 void pistaUserIterface(char** pistaBackEnd) {
 
 	int descontoLinhasInterfaceMatriz = 0;
@@ -56,7 +58,7 @@ void pistaUserIterface(char** pistaBackEnd) {
 			for (int colunasInterface = 0; colunasInterface < TAM_COLUNAS_INTERFACE; colunasInterface++)
 			{
 				if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroPlayer) {
-					printf("\x1b[37m|==|-", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
+					printf("\x1b[37m|==|-");
 				}
 				else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroInimigo)
 				{
@@ -229,13 +231,14 @@ void gerarCarrosAleatoriosNaPista(char** pistaBackEnd) {
 		}
 
 		Sleep(2000);
+		SetEvent(gInterfaceEvent);
 	}
 }
 
 void moveCarrosGeradosAleatoriamente(char** pistaBackEnd) {
 	while (true) {
 
-		Sleep(500);
+		Sleep(200);
 
 		for (int linha = 0; linha <= 4; linha++) {
 			for (int coluna = 0; coluna <= (COLUNAS - 1); coluna++) {
@@ -246,13 +249,39 @@ void moveCarrosGeradosAleatoriamente(char** pistaBackEnd) {
 				}
 			}
 		}
+		SetEvent(gInterfaceEvent);
 	}
 }
 
 int atualizacaoInterfaceGrafica(char** pistaBackEnd) {
+	DWORD dwWaitResult;
+	
 	while (true) {
-		pistaUserIterface(pistaBackEnd);
-		Sleep(200);
+
+		dwWaitResult = WaitForSingleObject(gInterfaceEvent, INFINITE);
+
+		switch (dwWaitResult)
+		{
+			case WAIT_OBJECT_0:
+				pistaUserIterface(pistaBackEnd);
+				ResetEvent(gInterfaceEvent);
+			break;
+
+			default:
+				printf("Wait error (%d)\n", GetLastError());
+				return 0;
+		}
+	}
+}
+
+void criacaoDeEventosThreads(char** pistaBackEnd) {
+
+	gInterfaceEvent = CreateEvent(NULL, TRUE, FALSE, TEXT("InterfacePista"));
+
+	if (gInterfaceEvent == NULL)
+	{
+		printf("CreateEvent failed (%d)\n", GetLastError());
+		return;
 	}
 }
 
@@ -260,9 +289,10 @@ int main()
 {
 	char** pistaBackEnd;
 	int teclaDirecional = 0;
-	registraTeclasDoJogo();
 
+	registraTeclasDoJogo();
 	pistaBackEnd = organizaPistaBackEndIncial();
+	criacaoDeEventosThreads(pistaBackEnd);
 
 	std::thread interfaceGrafica(atualizacaoInterfaceGrafica, pistaBackEnd);
 	std::thread gerarCarros(gerarCarrosAleatoriosNaPista, pistaBackEnd);
@@ -271,6 +301,7 @@ int main()
 	while (true) {
 		teclaDirecional = capturaTeclado();
 		movimentacaoNaPistaBackEnd(pistaBackEnd, teclaDirecional);
+		SetEvent(gInterfaceEvent);
 	}
 
 	return 0;
