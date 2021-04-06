@@ -55,67 +55,15 @@ void pistaUserIterface(char** pistaBackEnd) {
 
 			for (int colunasInterface = 0; colunasInterface < TAM_COLUNAS_INTERFACE; colunasInterface++)
 			{
-				if (linhasInterface == 1) {
-					if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroPlayer) {
-						printf("\x1b[37m|==|-", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
-					else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroInimigo)
-					{
-						printf("\x1b[32m-|==|");
-					}
-					else {
-						printf("\x1b[37m  %c  ", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
+				if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroPlayer) {
+					printf("\x1b[37m|==|-", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
 				}
-				else if (linhasInterface == 3) {
-					if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroPlayer) {
-						printf("\x1b[37m|==|-", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
-					else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroInimigo)
-					{
-						printf("\x1b[32m-|==|");
-					}
-					else {
-						printf("\x1b[37m  %c  ", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
+				else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroInimigo)
+				{
+					printf("\x1b[32m-|==|");
 				}
-				else if (linhasInterface == 5) {
-					if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroPlayer) {
-						printf("\x1b[37m|==|-", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
-					else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroInimigo)
-					{
-						printf("\x1b[32m-|==|");
-					}
-					else {
-						printf("\x1b[37m  %c  ", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
-				}
-				else if (linhasInterface == 7) {
-
-					if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroPlayer) {
-						printf("\x1b[37m|==|-", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
-					else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroInimigo)
-					{
-						printf("\x1b[32m-|==|");
-					}
-					else {
-						printf("\x1b[37m  %c  ", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
-				}
-				else if (linhasInterface == 9) {
-
-					if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroPlayer) {
-						printf("\x1b[37m|==|-", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
-					else if (pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface] == globalCarroInimigo)
-					{
-						printf("\x1b[32m-|==|");
-					}
-					else {
-						printf("\x1b[37m  %c  ", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
-					}
+				else {
+					printf("\x1b[37m  %c  ", pistaBackEnd[linhasInterface - descontoLinhasInterfaceMatriz][colunasInterface]);
 				}
 			}
 		}
