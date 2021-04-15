@@ -147,7 +147,16 @@ void moveParaDireita(char** pistaBackEnd) {
 	if (globalColunaCarro < (COLUNAS - 4))
 	{
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = ' ';
+
 		globalColunaCarro++;
+
+		if (pistaBackEnd[globalLinhaCarro][globalColunaCarro] == GAME_CARRO_INIMIGO)
+		{
+			pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_COLISAO;
+			gCarroColidiu = true;
+			return;
+		}
+
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_PLAYER;
 	}
 }
@@ -158,6 +167,14 @@ void moveParaEsquerda(char** pistaBackEnd) {
 	{
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = ' ';
 		globalColunaCarro--;
+
+		if (pistaBackEnd[globalLinhaCarro][globalColunaCarro] == GAME_CARRO_INIMIGO)
+		{
+			pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_COLISAO;
+			gCarroColidiu = true;
+			return;
+		}
+
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_PLAYER;
 	}
 }
@@ -168,6 +185,13 @@ void moveParaCima(char** pistaBackEnd) {
 	{
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = ' ';
 		globalLinhaCarro--;
+
+		if (pistaBackEnd[globalLinhaCarro][globalColunaCarro] == GAME_CARRO_INIMIGO)
+		{
+			pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_COLISAO;
+			gCarroColidiu = true;
+			return;
+		}
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_PLAYER;
 	}
 }
@@ -177,7 +201,16 @@ void moveParaBaixo(char** pistaBackEnd) {
 	if (globalLinhaCarro < 4)
 	{
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = ' ';
+
 		globalLinhaCarro++;
+
+		if (pistaBackEnd[globalLinhaCarro][globalColunaCarro] == GAME_CARRO_INIMIGO)
+		{
+			pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_COLISAO;
+			gCarroColidiu = true;
+			return;
+		}
+
 		pistaBackEnd[globalLinhaCarro][globalColunaCarro] = GAME_CARRO_PLAYER;
 	}
 }
@@ -226,14 +259,14 @@ void movimentacaoNaPistaBackEnd(char** pistaBackEnd, int movimento) {
 void gerarCarrosAleatoriosNaPista(char** pistaBackEnd) {
 	while (gCarroColidiu == false) {
 
-		for (int linha = 0, coluna = (COLUNAS -1); linha <= 4; linha++) {
+		for (int linha = 0, coluna = (COLUNAS -1); linha <= (LINHAS -1); linha++) {
 			if (rand() % 2 == 0)
 				pistaBackEnd[linha][coluna] = GAME_CARRO_INIMIGO;
 			else
 				pistaBackEnd[linha][coluna] = VAZIO;
 		}
 
-		for (int linha = 0, coluna = (COLUNAS - 1); linha <= 4; linha++) {
+		for (int linha = 0, coluna = (COLUNAS - 1); linha <= (LINHAS - 1); linha++) {
 			if (rand() % 2 == 0)
 				pistaBackEnd[linha][coluna] = VAZIO;
 		}
@@ -272,7 +305,7 @@ void moveCarrosGeradosAleatoriamente(char** pistaBackEnd) {
 	}
 }
 
-int atualizacaoInterfaceGrafica(char** pistaBackEnd) {
+void atualizacaoInterfaceGrafica(char** pistaBackEnd) {
 	DWORD dwWaitResult;
 	
 	while (gCarroColidiu == false) {
@@ -288,7 +321,7 @@ int atualizacaoInterfaceGrafica(char** pistaBackEnd) {
 
 			default:
 				printf("Wait error (%d)\n", GetLastError());
-				return 0;
+				return;
 		}
 	}
 }
